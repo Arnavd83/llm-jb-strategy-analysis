@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+
+try:
+    from datasets import load_dataset
+except ImportError as e:
+    sys.stderr.write("Missing dependency: datasets. Install with `pip install datasets`\n")
+    raise
+
+
+def main() -> None:
+    here = os.path.dirname(os.path.abspath(__file__))
+    out_csv = os.path.join(here, "forbidden_questions.csv")
+
+    # Load the dataset (default split)
+    ds = load_dataset("walledai/ForbiddenQuestions", split="train")
+
+    # Save to CSV without requiring pandas
+    ds.to_csv(out_csv)
+
+    print(f"Saved {len(ds):,} rows to {out_csv}")
+
+
+if __name__ == "__main__":
+    main()

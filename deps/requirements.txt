@@ -1,0 +1,24 @@
+# Core ML/AI packages (from Dockerfile)
+fschat==0.2.23
+pandas
+seaborn
+matplotlib
+numpy
+datasets
+evaluate
+
+# API clients
+anthropic
+google-generativeai
+google-cloud-aiplatform
+openai
+
+# Additional tools
+# Align with jailbreakbench which requires litellm ~=1.20.0
+litellm~=1.20.0
+wandb
+psutil
+jailbreakbench
+
+# CSV/Parquet backend commonly needed by datasets
+pyarrow
