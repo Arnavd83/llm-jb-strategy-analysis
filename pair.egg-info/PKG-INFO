@@ -1,0 +1,6 @@
+Metadata-Version: 2.4
+Name: pair
+Version: 0.0.0
+Requires-Dist: datasets
+Requires-Dist: pyarrow
+Dynamic: requires-dist
