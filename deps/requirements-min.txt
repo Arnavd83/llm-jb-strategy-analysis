@@ -1,3 +1,0 @@
-# Minimal requirements for data download script only
-datasets
-pyarrow

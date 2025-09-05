@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling>=1.21.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "llm-jb-strategy-analysis"
+version = "0.1.0"
+description = "LLM jailbreak strategy analysis"
+readme = "README.md"
+requires-python = ">=3.10,<3.12"
+license = { text = "Proprietary" }
+
+# Consolidated from environment.yml and deps/requirements.txt
+# If any of these need pinning or GPU-specific wheels, we can adjust.
+dependencies = [
+  "fschat==0.2.36",
+  "pandas",
+  "seaborn",
+  "matplotlib",
+  "numpy",
+  "datasets",
+  "evaluate",
+  "anthropic",
+  "google-generativeai",
+  "google-cloud-aiplatform",
+  "openai",
+  "litellm~=1.20.0",
+  "wandb",
+  "psutil",
+  "jailbreakbench",
+  "pyarrow",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-org/llm-jb-strategy-analysis"
+
+[tool.uv]
+# uv will use the [project] dependencies above.
+# You can pin a Python version at runtime with `uv python install` if desired.
+
+[tool.hatch.build.targets.wheel]
+# Tell Hatch which importable packages to include when building the wheel.
+# This resolves the "Unable to determine which files to ship" error.
+packages = ["pair", "goat"]

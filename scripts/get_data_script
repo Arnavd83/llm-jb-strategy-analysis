@@ -12,7 +12,11 @@ except ImportError as e:
 
 def main() -> None:
     here = os.path.dirname(os.path.abspath(__file__))
-    out_csv = os.path.join(here, "forbidden_questions.csv")
+    # Save outputs under the repository's data/ directory
+    repo_root = os.path.dirname(here)
+    data_dir = os.path.join(repo_root, "data")
+    os.makedirs(data_dir, exist_ok=True)
+    out_csv = os.path.join(data_dir, "forbidden_questions.csv")
 
     # Load the dataset (default split)
     ds = load_dataset("walledai/ForbiddenQuestions", split="train")
