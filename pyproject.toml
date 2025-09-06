@@ -29,6 +29,8 @@ dependencies = [
   "psutil",
   "jailbreakbench",
   "pyarrow",
+  "together",
+  "python-dotenv",
 ]
 
 [project.urls]
