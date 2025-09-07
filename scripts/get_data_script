@@ -16,10 +16,10 @@ def main() -> None:
     repo_root = os.path.dirname(here)
     data_dir = os.path.join(repo_root, "data")
     os.makedirs(data_dir, exist_ok=True)
-    out_csv = os.path.join(data_dir, "forbidden_questions.csv")
+    out_csv = os.path.join(data_dir, "jailbreakhub.csv")
 
     # Load the dataset (default split)
-    ds = load_dataset("walledai/ForbiddenQuestions", split="train")
+    ds = load_dataset("walledai/JailbreakHub", split="train")
 
     # Save to CSV without requiring pandas
     ds.to_csv(out_csv)
