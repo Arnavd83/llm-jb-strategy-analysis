@@ -2,12 +2,22 @@
 import wandb
 import pandas as pd
 import logging 
+import sys
 
 def setup_logger():
     logger = logging.getLogger('PAIR')
-    handler = logging.StreamHandler()
-    logger.addHandler(handler)
-
+    # Prevent double logging if root logger is configured elsewhere
+    logger.propagate = False
+    # Only add a handler once
+    if not logger.handlers:
+        handler = logging.StreamHandler(stream=sys.stdout)
+        formatter = logging.Formatter('%(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    # Default to INFO; test/runtime can adjust via logger.set_level
+    logger.setLevel(logging.INFO)
+    for h in logger.handlers:
+        h.setLevel(logging.INFO)
     return logger
 
 def set_logger_level(logger, verbosity):
