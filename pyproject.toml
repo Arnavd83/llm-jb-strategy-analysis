@@ -42,3 +42,8 @@ Homepage = "https://github.com/your-org/llm-jb-strategy-analysis"
 # Tell Hatch which importable packages to include when building the wheel.
 # This resolves the "Unable to determine which files to ship" error.
 packages = ["pair", "goat"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+]
