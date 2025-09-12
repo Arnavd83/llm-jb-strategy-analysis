@@ -1,12 +1,13 @@
 from dotenv import load_dotenv
 import argparse
-from loggers import WandBLogger, logger
-from judges import load_judge
-from conversers import load_attack_and_target_models
-from common import process_target_response, initialize_conversations
+from pair.loggers import WandBLogger, logger
+from pair.judges import load_judge
+from pair.conversers import load_attack_and_target_models
+from pair.common import process_target_response, initialize_conversations
 import psutil
 import os
 import time
+from pair.system_prompts_fixed import ATTACK_STRATEGIES
 
 load_dotenv()  # loads .env from project root
 
@@ -24,11 +25,17 @@ def main(args):
     attackLM, targetLM = load_attack_and_target_models(args)
     judgeLM = load_judge(args)
     
-    # Initialize conversations
-    convs_list, processed_response_list, system_prompts = initialize_conversations(args.n_streams, args.goal, args.target_str, attackLM.template)
+    # Initialize conversations (with selected strategies)
+    convs_list, processed_response_list, system_prompts, strategy_assignments = initialize_conversations(
+        args.n_streams,
+        args.goal,
+        args.target_str,
+        attackLM.template,
+        args.strategies,
+    )
     batchsize = args.n_streams
     
-    wandb_logger = WandBLogger(args, system_prompts)
+    wandb_logger = WandBLogger(args, system_prompts, strategy_assignments=strategy_assignments)
     target_response_list, judge_results = None, None
     # Begin PAIR
     for iteration in range(1, args.n_iterations + 1):
@@ -223,9 +230,41 @@ if __name__ == '__main__':
         help="Level of verbosity of outputs, use -v for some outputs and -vv for all outputs.")
     ##################################################
     
+    # Strategy selection (comma-separated, default authority_endorsement)
+    parser.add_argument(
+        "--strategy",
+        type=str,
+        default="authority_endorsement",
+        help=(
+            "Attacker strategy or comma-separated strategies to use. "
+            "Available: roleplaying, logical_appeal, authority_endorsement. "
+            "Default: authority_endorsement"
+        ),
+    )
     
     args = parser.parse_args()
     logger.set_level(args.verbosity)
 
     args.use_jailbreakbench = not args.not_jailbreakbench
+    
+    # Phase 1: Parse and validate strategies (but do not thread them further yet)
+    # Normalize and split comma-separated strategies
+    raw_strategy = args.strategy if isinstance(args.strategy, str) else ""
+    selected = [s.strip().lower() for s in raw_strategy.split(",")]
+    # Drop empties and deduplicate preserving order
+    seen = set()
+    strategies = []
+    for s in selected:
+        if not s:
+            continue
+        if s not in seen:
+            strategies.append(s)
+            seen.add(s)
+    # Validate against ATTACK_STRATEGIES keys
+    valid_keys = set(ATTACK_STRATEGIES.keys())
+    if len(strategies) == 0 or any(s not in valid_keys for s in strategies):
+        raise SystemExit("unrecognizable strategy")
+    
+    # Store normalized, validated list on args for later phases
+    args.strategies = strategies
     main(args)

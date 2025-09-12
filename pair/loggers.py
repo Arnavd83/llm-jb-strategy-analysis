@@ -38,7 +38,7 @@ logger.set_level = lambda verbosity : set_logger_level(logger, verbosity)
 class WandBLogger:
     """WandB logger."""
 
-    def __init__(self, args, system_prompts):
+    def __init__(self, args, system_prompts, strategy_assignments=None):
         self.logger = wandb.init(
             project = "jailbreak-llms",
             config = {
@@ -53,6 +53,9 @@ class WandBLogger:
                 "n_iter": args.n_iterations,
                 "target_str": args.target_str,
                 "n_streams": args.n_streams,
+                # New: log selected strategies and default
+                "strategies": getattr(args, "strategies", []),
+                "strategy_default": "authority_endorsement",
             }
         )
         self.is_jailbroken = False
@@ -63,6 +66,17 @@ class WandBLogger:
         self.goal = args.goal
         self.jailbreak_prompt = None
         self.jailbreak_response = None
+        # Prefer externally provided per-conversation strategy assignments
+        self.strategy_assignments = strategy_assignments
+        if self.strategy_assignments is None:
+            # Fallback: derive by cycling args.strategies if available
+            try:
+                strategies = getattr(args, "strategies", [])
+                if strategies and len(strategies) > 0:
+                    self.strategy_assignments = [strategies[i % len(strategies)] for i in range(self.batch_size)]
+            except Exception:
+                # Keep None if any issue; logging will skip the column
+                self.strategy_assignments = None
 
     def log(self, iteration: int, attack_list: list, response_list: list, judge_results: list):
     
@@ -71,6 +85,9 @@ class WandBLogger:
         
         df = pd.DataFrame(attack_list)
         df["target_response"] = response_list
+        # New: add per-row strategy if available
+        if self.strategy_assignments is not None and len(self.strategy_assignments) == len(response_list):
+            df["strategy"] = self.strategy_assignments
         
         # Extract scores and statuses from structured results
         df["judge_scores"] = [result["score"] for result in judge_results]
