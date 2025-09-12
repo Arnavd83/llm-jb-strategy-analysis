@@ -8,6 +8,7 @@ import psutil
 import os
 import time
 from pair.system_prompts_fixed import ATTACK_STRATEGIES
+from pair.config import apply_argparse_defaults
 
 load_dotenv()  # loads .env from project root
 
@@ -242,8 +243,23 @@ if __name__ == '__main__':
         ),
     )
     
+    # Apply centralized defaults and hide nonessential flags from help
+    # This makes only --strategy and --goal visible to users while keeping
+    # full override capability for advanced use. Placing this AFTER all
+    # add_argument calls ensures these defaults take precedence.
+    apply_argparse_defaults(parser, hide_nonessential=True)
+
     args = parser.parse_args()
     logger.set_level(args.verbosity)
+
+    # Ensure centralized model defaults take effect for core models
+    # (avoid Together AI vicuna fallback unless explicitly overridden elsewhere)
+    try:
+        from pair.config import ALL_DEFAULTS
+        for _k in ("attack_model", "target_model", "judge_model"):
+            setattr(args, _k, ALL_DEFAULTS[_k])
+    except Exception:
+        pass
 
     args.use_jailbreakbench = not args.not_jailbreakbench
     
