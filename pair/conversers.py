@@ -55,7 +55,7 @@ class AttackLM():
         self.max_n_tokens = max_n_tokens
         self.max_n_attack_attempts = max_n_attack_attempts
 
-        from config import ATTACK_TEMP, ATTACK_TOP_P
+        from pair.config import ATTACK_TEMP, ATTACK_TOP_P
         self.temperature = ATTACK_TEMP
         self.top_p = ATTACK_TOP_P
 
@@ -172,7 +172,7 @@ class TargetLM():
         self.use_jailbreakbench = use_jailbreakbench
         self.evaluate_locally = evaluate_locally
 
-        from config import TARGET_TEMP,  TARGET_TOP_P   
+        from pair.config import TARGET_TEMP,  TARGET_TOP_P   
         self.temperature = TARGET_TEMP
         self.top_p = TARGET_TOP_P
 
@@ -181,7 +181,7 @@ class TargetLM():
         
         # Set template for conversation formatting when not using jailbreakbench
         if not use_jailbreakbench:
-            from config import FASTCHAT_TEMPLATE_NAMES, Model
+            from pair.config import FASTCHAT_TEMPLATE_NAMES, Model
             self.template = FASTCHAT_TEMPLATE_NAMES[Model(model_name)]
 
     def get_response(self, prompts_list):
