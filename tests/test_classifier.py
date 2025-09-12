@@ -2,7 +2,7 @@ import os
 import unittest
 import pytest
 
-from judges import JBBJudge
+from pair.judges import JBBJudge
 
 # Mark this module as requiring Hugging Face gated model access
 pytestmark = pytest.mark.hf
